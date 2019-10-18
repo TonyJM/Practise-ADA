@@ -26,8 +26,8 @@ int partition(int a[],int low,int high){
 void quickSort(int a[],int low,int high,int k){
 	if(low<high){
 		int pivot_pos=partition(a,low,high);
-		if (pivot_pos==k)
-            cout<<"Kth smallest = "<<a[k];
+		if (pivot_pos>=k)
+            cout<<"\nKth smallest = "<<a[k];
 		quickSort(a,low,pivot_pos-1,k);
 		quickSort(a,pivot_pos+1,high,k);
 	}
@@ -47,8 +47,8 @@ int main(){
     cin>>s>>e>>k;
 
 	start=clock();
-	cout<<"\nQuick Sort:\n";
 	quickSort(a,s-1,e-1,s+k-2);
+	cout<<"\nQuick Sort:\n";
 	for(i=0;i<high;i++)
 		cout<<a[i]<<"\t";
 	end=clock();
