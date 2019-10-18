@@ -1,57 +1,123 @@
-#include<iostream>
-#define N 5
+#include <iostream>
+#include <queue>
+//#include <climits>
+//#include <cstring>
 using namespace std;
 
-int maze[N][N]  =  {
-   {1, 0, 0, 0, 0},
-   {1, 1, 1, 1, 0},
-   {0, 0, 0, 1, 1},
-   {0, 0, 0, 0, 1},
-   {1, 1, 1, 1, 1}
+// M x N matrix
+#define M 10
+#define N 10
+
+// queue node used in BFS
+struct Node
+{
+    // (x, y) represents matrix cell coordinates
+    // dist represent its minimum distance from the source
+    int x, y, dist;
 };
 
-int sol[N][N];         //final solution of the maze path is stored here
-void showPath() {
-   for (int i = 0; i < N; i++) {
-      for (int j = 0; j < N; j++)
-         cout << sol[i][j] << " ";
-      cout << endl;
-   }
+// Below arrays details all 4 possible movements from a cell
+int row[] = { -1, 0, 0, 1 };
+int col[] = { 0, -1, 1, 0 };
+
+// Function to check if it is possible to go to position (row, col)
+// from current position. The function returns false if (row, col)
+// is not a valid position or has value 0 or it is already visited
+bool isValid(int mat[][N], int visited[][N], int row, int col)
+{
+    return (row >= 0) && (row < M) && (col >= 0) && (col < N)
+        && mat[row][col] && !visited[row][col];
 }
 
-bool isValidPlace(int x, int y) {      //function to check place is inside the maze and have value 1
-   if(x >= 0 && x < N && y >= 0 && y < N && maze[x][y] == 1)
-      return true;
-   return false;
+// Find Shortest Possible Route in a matrix mat from source
+// cell (i, j) to destination cell (x, y)
+void BFS(int mat[][N], int i, int j, int x, int y)
+{
+    // construct a matrix to keep track of visited cells
+    //bool visited[M][N]={False};
+
+    // initially all cells are unvisited
+    //memset(visited, false, sizeof visited);
+
+    int visited[M][N]={0};
+
+    // create an empty queue
+    queue<Node> q;
+
+    // mark source cell as visited and enqueue the source node
+    visited[i][j] = true;
+    q.push({i, j, 0});
+
+    // stores length of longest path from source to destination
+    int min_dist = -1;
+
+    // run till queue is not empty
+    while (!q.empty())
+    {
+        // pop front node from queue and process it
+        Node node = q.front();
+        q.pop();
+
+        // (i, j) represents current cell and dist stores its
+        // minimum distance from the source
+        int i = node.x, j = node.y, dist = node.dist;
+
+        // if destination is found, update min_dist and stop
+        if (i == x && j == y)
+        {
+            min_dist = dist;
+            break;
+        }
+
+        // check for all 4 possible movements from current cell
+        // and enqueue each valid movement
+        for (int k = 0; k < 4; k++)
+        {
+            // check if it is possible to go to position
+            // (i + row[k], j + col[k]) from current position
+            if (isValid(mat, visited, i + row[k], j + col[k]))
+            {
+                // mark next cell as visited and enqueue it
+                visited[i + row[k]][j + col[k]] = true;
+                q.push({ i + row[k], j + col[k], dist + 1 });
+            }
+        }
+    }
+
+    if (min_dist != -1)
+        cout << "\nThe shortest path from source to destination "
+                "has length " << min_dist;
+    else
+        cout << "\nDestination can't be reached from given source";
 }
 
-bool solveRatMaze(int x, int y) {
-   if(x == N-1 && y == N-1) {       //when (x,y) is the bottom right room
-      sol[x][y] = 1;
-      return true;
-   }
+// Shortest path in a Maze
+int main()
+{
+    // input maze
+    int mat[M][N] =
+    {
+        { 1, 1, 1, 1, 1, 0, 0, 1, 1, 1 },
+        { 0, 1, 1, 1, 1, 1, 0, 1, 0, 1 },
+        { 0, 0, 1, 0, 1, 1, 1, 0, 0, 1 },
+        { 1, 0, 1, 1, 1, 0, 1, 1, 0, 1 },
+        { 0, 0, 0, 1, 0, 0, 0, 1, 0, 1 },
+        { 1, 0, 1, 1, 1, 0, 0, 1, 1, 0 },
+        { 0, 0, 0, 0, 1, 0, 0, 1, 0, 1 },
+        { 0, 1, 1, 1, 1, 1, 1, 1, 0, 0 },
+        { 1, 1, 1, 1, 1, 0, 0, 1, 1, 1 },
+        { 0, 0, 1, 0, 0, 1, 1, 0, 0, 1 },
+    };
 
-   if(isValidPlace(x, y) == true) {     //check whether (x,y) is valid or not
-      sol[x][y] = 1; //set 1, when it is valid place
-      if (solveRatMaze(x+1, y) == true)       //find path by moving right direction
-         return true;
-      if (solveRatMaze(x, y+1) == true)         //when x direction is blocked, go for bottom direction
-         return true;
-      sol[x][y] = 0;         //if both are closed, there is no path
-      return false;
-   }
-   return false;
-}
+    // Find shortest path from source (0, 0) to
+    // destination (7, 5)
+    BFS(mat, 0, 0, 7, 5);
 
-bool findSolution() {
-   if(maze[N-1][N-1]==0 || solveRatMaze(0, 0) == false) {
-      cout << "There is no path";
-      return false;
-   }
-   showPath();
-   return true;
-}
+    BFS(mat, 9, 9, 7,5 );
 
-int main() {
-   findSolution();
+    BFS(mat, 9, 9, 9,0 );
+
+    BFS(mat, 9, 9, 2,6 );
+
+    return 0;
 }
