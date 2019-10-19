@@ -23,13 +23,15 @@ int partition(int a[],int low,int high){
 	}
 }
 
-void quickSort(int a[],int low,int high,int k){
+void quickSort(int a[],int low,int high,int k,int f){
 	if(low<high){
 		int pivot_pos=partition(a,low,high);
-		if (pivot_pos>=k)
+		if (pivot_pos>=k && f==0){
             cout<<"\nKth smallest = "<<a[k];
-		quickSort(a,low,pivot_pos-1,k);
-		quickSort(a,pivot_pos+1,high,k);
+            f=1;
+		}
+		quickSort(a,low,pivot_pos-1,k,f);
+		quickSort(a,pivot_pos+1,high,k,f);
 	}
 }
 
@@ -47,10 +49,10 @@ int main(){
     cin>>s>>e>>k;
 
 	start=clock();
-	quickSort(a,s-1,e-1,s+k-2);
-	cout<<"\nQuick Sort:\n";
-	for(i=0;i<high;i++)
-		cout<<a[i]<<"\t";
+	quickSort(a,s-1,e-1,s+k-2,0);
+//	cout<<"\nQuick Sort:\n";
+//	for(i=0;i<high;i++)
+//		cout<<a[i]<<"\t";
 	end=clock();
 	time=(double(end)-double(start))/double(CLOCKS_PER_SEC);
 	cout<<"\nTime Taken = "<<time<<"s\n";
